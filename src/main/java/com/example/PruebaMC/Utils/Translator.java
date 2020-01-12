@@ -19,6 +19,7 @@ public class Translator {
 	HashMap<String, String> morseCodes = new HashMap<String, String>();
 	HashMap<String, String> characters = new HashMap<String, String>();
 
+	//El constructor llena los dos maps con los equivalentes morse a lketra, y letra a morse.
 	public Translator() {
 		for (int i = 0; i < alphabet.length; i++) {
 			morseCodes.put(alphabet[i], morseCode[i]);
@@ -30,6 +31,8 @@ public class Translator {
 		;
 	}
 
+	//Como no hay forma exacta de saber cuantos 1s y 0s representan puntos, rayas y espacios entre palabras y letras, se saca
+	//un promedio entre las dos para tener un aproximado
 	public String decodeBits2Morse(String binarySecuence) {
 		StringBuilder sb = new StringBuilder();
 		Double average1Secuence = calculateCharacterAverageAverage(binarySecuence, '1');
@@ -68,8 +71,11 @@ public class Translator {
 		return sb.toString();
 	}
 
+	//Usando el mapa que contene de id los cogigos morse, se itera el mensaje en morse y se busca su equivalente en humano
 	public String translate2Human(String morseSecuence) {
 		StringBuilder sb = new StringBuilder();
+		//Estas conversiones en el codigo morse se usan para facilitar saber cuando es espacio de palabra y cuadno es espacio 
+		//de letra, esto ayuda para hacer el split correctamente
 		String arrangeMorseSequence = morseSecuence.trim().replaceAll("  +", " | ");
 		String[] morseArray = arrangeMorseSequence.split(" ");
 		for (String morse : morseArray) {
@@ -78,6 +84,8 @@ public class Translator {
 		return sb.toString();
 	}
 
+	
+	//Convierte texto normal en morse. Se busca agregar espacios simples para separar letras y espacios dobles para separar palabras
 	public String humanToMorse(String humanSecuence) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < humanSecuence.length(); i++) {
@@ -85,6 +93,7 @@ public class Translator {
 			if (String.valueOf(c).equals(" ")) {
 				sb.append("  ");
 			} else {
+				//Despues de cada letra en morse, se agrega un espacio simple para separarlo del proximo caracter en morse
 				sb.append(morseCodes.get(String.valueOf(c))).append(" ");
 			}
 		}
