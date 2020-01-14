@@ -35,20 +35,40 @@ public class Translator {
 	//un promedio entre las dos para tener un aproximado
 	public String decodeBits2Morse(String binarySecuence) {
 		StringBuilder sb = new StringBuilder();
-		Double average1Secuence = calculateCharacterAverageAverage(binarySecuence, '1');
-		Double average0Secuence = calculateCharacterAverageAverage(binarySecuence, '0');
+		String cleanedBinarySecuence = removeExcessCeros(binarySecuence);
+		Double average1Secuence = calculateCharacterAverageAverage(cleanedBinarySecuence, '1');
+		Double average0Secuence = calculateCharacterAverageAverage(cleanedBinarySecuence, '0');
 		boolean firstIteration = true;
 		String binaryRepresentation = "";
 		char c = 0;
-		for (int i = 0, n = binarySecuence.length(); i < n; i++) {
+		for (int i = 0, n = cleanedBinarySecuence.length(); i < n; i++) {
 			if (firstIteration) {
-				c = binarySecuence.charAt(i);
+				c = cleanedBinarySecuence.charAt(i);
 				firstIteration = false;
 				binaryRepresentation += c;
 				continue;
 			} else {
-				if (c == binarySecuence.charAt(i)) {
-					binaryRepresentation += binarySecuence.charAt(i);
+				//Validacion para verificar si se llego al final de la cadena, como no hay mas bist que 
+				//comparar mas adelante, se hace aca
+				if(i == cleanedBinarySecuence.length()-1) {
+					binaryRepresentation += cleanedBinarySecuence.charAt(i);
+					if(c == '1') {
+						if(binaryRepresentation.length() < average1Secuence)
+							sb.append(".");
+						else
+							sb.append("-");
+					} else {
+						if(binaryRepresentation.length() < average0Secuence)
+							sb.append("");
+						else
+							sb.append(" ");
+					}
+					break;
+				}
+				
+				//Se valida que se sigue usando el mismo caracter que lo que se lleva de la sucesion actual
+				if (c == cleanedBinarySecuence.charAt(i)) {
+					binaryRepresentation += cleanedBinarySecuence.charAt(i);
 				} else {
 					if(c == '1') {
 						if(binaryRepresentation.length() < average1Secuence)
@@ -62,7 +82,7 @@ public class Translator {
 							sb.append(" ");
 					}
 					binaryRepresentation = "";
-					c = binarySecuence.charAt(i);
+					c = cleanedBinarySecuence.charAt(i);
 					binaryRepresentation += c;
 				}
 			}
@@ -101,29 +121,51 @@ public class Translator {
 	}
 
 	private Double calculateCharacterAverageAverage(String binarySecuence, char character) {
-		double biggest1Secuence = 0;
-		double smallest1Secuence = 999999;
-		int current1Count = 0;
+		double biggestSecuence = 0;
+		double smallestSecuence = 999999;
+		int currentCount = 0;
 
 		for (int i = 0; i < binarySecuence.length(); i++) {
 			char c = binarySecuence.charAt(i);
+			
 			if (character == c) {
-				current1Count++;
+				currentCount++;
 			} else {
-				if(current1Count > 0) {
-					if (biggest1Secuence < current1Count) {
-						biggest1Secuence = current1Count;
+				if(currentCount > 0) {
+					if (biggestSecuence < currentCount) {
+						biggestSecuence = currentCount;
 					}
-					if (smallest1Secuence > current1Count) {
-						smallest1Secuence = current1Count;
+					if (smallestSecuence > currentCount) {
+						smallestSecuence = currentCount;
 					}
-					current1Count = 0;
+					currentCount = 0;
 				}
 			}
 		}
 		
-		Double average = (biggest1Secuence + smallest1Secuence)/2;
+		Double average = (biggestSecuence + smallestSecuence)/2;
 		return average;
+	}
+	
+	private String removeExcessCeros(String baseBinaryCode) {
+		try {
+			int first1Location = 0;
+			int last1Location = 0;
+			for (int i = 0, n = baseBinaryCode.length(); i < n; i++) {
+				char c = baseBinaryCode.charAt(i);
+				if ('1' == c) {
+					if(first1Location == 0)
+						first1Location = i;
+					else {
+						last1Location = i;
+					}
+				}
+			}
+			return baseBinaryCode.substring(first1Location, last1Location+1);
+		}catch (Exception e) {
+			return baseBinaryCode;
+		}
+		
 	}
 
 }
